@@ -1,10 +1,10 @@
-#include <iostream>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 #include <vector>
 
+#include "common.h"
 #include "caffe/caffe.hpp"
 #include "caffe/proto/caffe.pb.h"
 #include "conv.h"
@@ -18,25 +18,20 @@ DEFINE_string(model, "",
 DEFINE_string(weights, "",
     "the pretrained weights to initialize finetuning.");
 
-using caffe::Blob;
 using caffe::Layer;
 using caffe::Net;
-using std::vector;
-using boost::shared_ptr;
 
-using Halide::Buffer;
 using Halide::RDom;
 using Halide::sum;
 using Halide::abs;
-using Halide::Var;
-using Halide::Func;
+
+using namespace hdnn;
 
 int main(int argc, char* argv[]) {
     google::SetUsageMessage("commands:\n"
             "  model            caffe prototxt\n"
             "  weights          pretrained weights");
     google::ParseCommandLineFlags(&argc, &argv, true);
-    std::cout << FLAGS_model << std::endl;
 
     CHECK_GT(FLAGS_model.size(), 0) << "Need a model definition.";
     // CHECK_GT(FLAGS_weights.size(), 0) << "Need pretrained model weights.";
@@ -47,22 +42,28 @@ int main(int argc, char* argv[]) {
     cv::Mat im = cv::imread("data/test.png", cv::IMREAD_COLOR);
 
     auto& layers = caffe_net.layers();
-    std::cout << "Net has " << layers.size() << " layers." << std::endl;
+    LOG_IF(INFO, Caffe::root_solver()) << "Net has " << layers.size() << " layers.";
     auto& layer = layers[1];
     auto& blobs = layer->blobs();
-    std::cout << "First layer has " << blobs.size() << " parameters." << std::endl;
-    const auto parameter = layer->layer_param().convolution_param();
-
-    std::cout << "Weight shape: (";
-    for (int i = 0; i < blobs[0]->num_axes(); i ++) {
-        std::cout << blobs[0]->shape(i);
-        if (i != blobs[0]->num_axes() - 1)
-            std::cout << ',';
-    }
-    std::cout << ')' << std::endl;
+    LOG_IF(INFO, Caffe::root_solver()) << "First layer has " << blobs.size() << " parameters.";
 
     caffe::caffe_rng_uniform<float>(blobs[0]->count(), 0, 1, blobs[0]->mutable_cpu_data());
-    std::cout << "Initialized asum (Caffe): " << caffe::caffe_cpu_asum(blobs[0]->count(), blobs[0]->mutable_cpu_data()) << std::endl;
+    LOG_IF(INFO, Caffe::root_solver()) << "Initialized asum (Caffe): " << caffe::caffe_cpu_asum(blobs[0]->count(), blobs[0]->mutable_cpu_data());
+
+    auto conv_layer = hdnn::Conv2d<float>(3, 64, 5);
+
+    conv_layer.CopyParams(layer->blobs());
+    caffe::caffe_rng_uniform<float>(blobs[0]->count(), 0, 1, blobs[0]->mutable_cpu_data());
+    Func& s = conv_layer(Func());
+    Buffer<float> sum = s.realize(1, 1, 1, 1);
+    LOG_IF(INFO, Caffe::root_solver()) << "Initialized asum (Halide): " << sum(0, 0, 0, 0);
+/*
+    const auto parameter = layer->layer_param().convolution_param();
+
+    LOG_IF(INFO, Caffe::root_solver()) << "Weight shape: " << blobs[0]->shape_string();
+
+    caffe::caffe_rng_uniform<float>(blobs[0]->count(), 0, 1, blobs[0]->mutable_cpu_data());
+    LOG_IF(INFO, Caffe::root_solver()) << "Initialized asum (Caffe): " << caffe::caffe_cpu_asum(blobs[0]->count(), blobs[0]->mutable_cpu_data());
 
     Buffer<float> weight(blobs[0]->mutable_cpu_data(), blobs[0]->shape());
     Buffer<float> bias(blobs[1]->mutable_cpu_data(), blobs[1]->shape());
@@ -70,10 +71,13 @@ int main(int argc, char* argv[]) {
     RDom r(weight);
 
     Var x, y, z, w;
+    Func i("i");
     Func s("s");
+    i(x, y, z, w) = weight(x, y, z, w);
     s(x, y, z, w) = (float)0.;
-    s(x, y, z, w) += abs(weight(x + r.x, y + r.y, z + r.z, w + r.w));
+    s(x, y, z, w) += abs(i(x + r.x, y + r.y, z + r.z, w + r.w));
     Buffer<float> sum = s.realize(1, 1, 1, 1);
-    std::cout << "Initialized asum (Halide): " << sum(0, 0, 0, 0) << std::endl;
+    LOG_IF(INFO, Caffe::root_solver()) << "Initialized asum (Halide): " << sum(0, 0, 0, 0);
+*/
     return 0;
 }
