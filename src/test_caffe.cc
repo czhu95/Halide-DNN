@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
     caffe::caffe_rng_uniform<float>(blobs[0]->count(), 0, 1, blobs[0]->mutable_cpu_data());
     LOG_IF(INFO, Caffe::root_solver()) << "Initialized asum (Caffe): " << caffe::caffe_cpu_asum(blobs[0]->count(), blobs[0]->mutable_cpu_data());
 
-    auto conv_layer = hdnn::Conv2d<float>(3, 64, 5);
+    auto conv_layer = hdnn::Conv2d<float>(3, 32, 5);
 
     conv_layer.CopyParams(layer->blobs());
     caffe::caffe_rng_uniform<float>(blobs[0]->count(), 0, 1, blobs[0]->mutable_cpu_data());
