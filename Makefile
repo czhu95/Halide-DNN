@@ -29,3 +29,6 @@ test_pool: src/test_pool.cc src/pool.cc
 
 test_relu: src/test_relu.cc src/relu.cc
 	g++ src/test_relu.cc src/relu.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_relu
+
+test_linear: src/test_linear.cc src/linear.cc
+	g++ src/test_linear.cc src/linear.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_linear
