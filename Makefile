@@ -21,5 +21,8 @@ LDFLAGS += $(shell llvm-config --ldflags --system-libs --libs | sed -e 's/\\/\//
 all:
 	g++ src/main.cc src/conv.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o main
 
-test:
+test_conv: src/test_conv.cc src/conv.cc
 	g++ src/test_conv.cc src/conv.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_conv
+
+test_pool: src/test_pool.cc src/pool.cc
+	g++ src/test_pool.cc src/pool.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_pool

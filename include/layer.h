@@ -9,14 +9,9 @@ using caffe::LayerParameter;
 
 template <typename Dtype>
 class Layer {
-public:
-    // Layer(const LayerParameter& param) :
-        // param_(param) {}
 protected:
     virtual void CopyParams(vector<shared_ptr<Blob<Dtype>>>& blobs) {}
-    // LayerParameter param_;
-    // Halide function for this layer. I think we need it stored somewhere.
-    Func func_;
+    virtual vector<int> compute_output_size(const vector<int>& input_size) const {};
 };
 
 } //namespace hdnn
