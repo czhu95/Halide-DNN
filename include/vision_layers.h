@@ -1,5 +1,5 @@
-#ifndef CONV_H_
-#define CONV_H_
+#ifndef VISION_LAYERS_H_
+#define VISION_LAYERS_H_
 #include <vector>
 #include "caffe/proto/caffe.pb.h"
 #include "Halide.h"
