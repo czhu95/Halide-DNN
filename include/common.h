@@ -15,6 +15,7 @@ using Halide::Buffer;
 using Halide::RDom;
 using Halide::Var;
 using Halide::Func;
+using Halide::Expr;
 
 }
 
