@@ -9,7 +9,7 @@
 #include "util.h"
 #include "caffe/caffe.hpp"
 #include "caffe/proto/caffe.pb.h"
-#include "conv.h"
+#include "vision_layers.h"
 
 using caffe::Layer;
 using caffe::Net;

@@ -9,7 +9,7 @@
 #include "util.h"
 #include "caffe/caffe.hpp"
 #include "caffe/proto/caffe.pb.h"
-#include "conv.h"
+#include "vision_layers.h"
 
 DEFINE_string(gpu, "",
     "Optional; run in GPU mode on given device IDs separated by ','."
