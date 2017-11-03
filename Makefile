@@ -19,4 +19,7 @@ LDFLAGS := $(foreach librarydir,$(LIBRARY_DIRS),-L$(librarydir)) \
 LDFLAGS += $(shell llvm-config --ldflags --system-libs --libs | sed -e 's/\\/\//g' -e 's/\([a-zA-Z]\):/\/\1/g')
 
 all:
-	g++ src/*.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o main
+	g++ src/main.cc src/conv.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o main
+
+test:
+	g++ src/test_conv.cc src/conv.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_conv
