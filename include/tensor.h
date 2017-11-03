@@ -25,6 +25,14 @@ public:
             bounds.push_back({0, size_[*it]});
         return bounds;
     }
+    int stride(int n) const {
+        int c = 1;
+        if (n < 0)
+            n += size_.size();
+        for (int i = 0; i < n && i < size_.size(); i ++)
+            c *= size_[i];
+        return c;
+    }
     const vector<int>& size() const { return size_; }
 private:
     Func func_;
