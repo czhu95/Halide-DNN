@@ -26,3 +26,6 @@ test_conv: src/test_conv.cc src/conv.cc
 
 test_pool: src/test_pool.cc src/pool.cc
 	g++ src/test_pool.cc src/pool.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_pool
+
+test_relu: src/test_relu.cc src/relu.cc
+	g++ src/test_relu.cc src/relu.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_relu
