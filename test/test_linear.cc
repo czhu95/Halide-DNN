@@ -19,7 +19,7 @@ using std::string;
 using namespace hdnn;
 
 int main(int argc, char* argv[]) {
-    caffe::Net<float> caffe_net("cifar10_quick.prototxt", caffe::TEST);
+    caffe::Net<float> caffe_net("models/cifar10_quick/cifar10_quick.prototxt", caffe::TEST);
     int layer_id = 10;
     auto& layers = caffe_net.layers();
     auto& layer = layers[layer_id];
