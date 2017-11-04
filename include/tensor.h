@@ -34,6 +34,7 @@ public:
         return c;
     }
     const vector<int>& size() const { return size_; }
+    int size(int n) const { return size_[n]; }
 private:
     Func func_;
     vector<int> size_;

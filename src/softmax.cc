@@ -15,7 +15,7 @@ Tensor Softmax<Dtype>::operator () (const Tensor& x) {
     // TODO: not sure we need so many buffer Funcs.
     Func f, exp, scale;
 
-    int softmax_features = x.size()[0];
+    int softmax_features = x.size(0);
     exp(c, n) = Halide::exp(x.func()(c, n));
     RDom r(0, softmax_features);
     scale(n) = Halide::sum(exp(r.x, n));
