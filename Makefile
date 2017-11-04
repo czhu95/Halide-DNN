@@ -32,3 +32,6 @@ test_relu: src/test_relu.cc src/relu.cc
 
 test_linear: src/test_linear.cc src/linear.cc
 	g++ src/test_linear.cc src/linear.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_linear
+
+test_softmax: src/test_softmax.cc src/softmax.cc
+	g++ src/test_softmax.cc src/softmax.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_softmax
