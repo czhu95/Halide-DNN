@@ -5,7 +5,8 @@
 namespace hdnn {
 
 template <typename Dtype>
-MaxPool2d<Dtype>::MaxPool2d(int kernel_size, int stride, int padding) :
+MaxPool2d<Dtype>::MaxPool2d(const string& name, int kernel_size, int stride, int padding) :
+    Layer<Dtype>(name),
     kernel_size_(kernel_size),
     stride_(stride),
     pad_(padding) {}

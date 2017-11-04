@@ -11,7 +11,8 @@ namespace hdnn {
 template <typename Dtype>
 class ReLU : public Layer<Dtype> {
 public:
-    ReLU();
+    ReLU(const string& name);
+    ReLU() : ReLU("") {}
     virtual Tensor operator () (const Tensor& v);
 private:
     virtual vector<int> compute_output_size(const vector<int>& input_size) const;

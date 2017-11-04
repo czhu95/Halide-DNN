@@ -4,14 +4,17 @@
 #include "caffe/proto/caffe.pb.h"
 namespace hdnn {
 
-using Halide::Func;
-using caffe::LayerParameter;
-
 template <typename Dtype>
 class Layer {
+public:
+    Layer(const string& name="") : name_(name) {}
+    virtual void copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs) {}
+    virtual const string& name() const { return name_; }
+    virtual bool hasParams() const { return false; };
 protected:
-    virtual void CopyParams(vector<shared_ptr<Blob<Dtype>>>& blobs) {}
     virtual vector<int> compute_output_size(const vector<int>& input_size) const {};
+
+    string name_;
 };
 
 } //namespace hdnn

@@ -1,11 +1,10 @@
-#include <cmath>
-#include "util.h"
 #include "relu.h"
 
 namespace hdnn {
 
 template <typename Dtype>
-ReLU<Dtype>::ReLU() {}
+ReLU<Dtype>::ReLU(const string& name) :
+    Layer<Dtype>(name) {}
 
 template <typename Dtype>
 Tensor ReLU<Dtype>::operator () (const Tensor& x) {
@@ -20,7 +19,7 @@ Tensor ReLU<Dtype>::operator () (const Tensor& x) {
 
 template <typename Dtype>
 vector<int> ReLU<Dtype>::compute_output_size(const vector<int>& input_size) const {
-    return vector<int>(input_size);
+    return input_size;
 }
 
 template class ReLU<float>;

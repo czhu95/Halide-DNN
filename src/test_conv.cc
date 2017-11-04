@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     LOG_IF(INFO, Caffe::root_solver()) << "Conv output shape (Caffe): " << output_blob->shape_string();
 
     auto conv_layer = hdnn::Conv2d<float>(input_blob->shape(1), output_blob->shape(1), 5, 1, 2);
-    conv_layer.CopyParams(layer->blobs());
+    conv_layer.copyParams(layer->blobs());
 
     Buffer<float> input(input_blob->mutable_cpu_data(), reversed(input_blob->shape()));
     Tensor x(Func(input), reversed(input_blob->shape()));

@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
     LOG_IF(INFO, Caffe::root_solver()) << "Linear output shape (Caffe): " << output_blob->shape_string();
 
     auto linear_layer = hdnn::Linear<float>(1024, 64);
-    linear_layer.CopyParams(blobs);
+    linear_layer.copyParams(blobs);
 
     Buffer<float> input(input_blob->mutable_cpu_data(), reversed(input_blob->shape()));
     Tensor x(Func(input), reversed(input_blob->shape()));

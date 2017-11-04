@@ -5,7 +5,8 @@ namespace hdnn {
 
 
 template <typename Dtype>
-Linear<Dtype>::Linear(int in_features, int out_features, bool bias) :
+Linear<Dtype>::Linear(const string& name, int in_features, int out_features, bool bias) :
+    Layer<Dtype>(name),
     in_features_(in_features),
     out_features_(out_features),
     bias_term_(bias) {
@@ -20,7 +21,7 @@ Linear<Dtype>::Linear(int in_features, int out_features, bool bias) :
 }
 
 template <typename Dtype>
-void Linear<Dtype>::CopyParams(vector<shared_ptr<Blob<Dtype>>>& blobs) {
+void Linear<Dtype>::copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs) {
     auto weight_blob = blobs[0];
     CHECK_EQ(weight_blob->shape().size(), 2);
     CHECK_EQ(weight_blob->shape(0), out_features_);

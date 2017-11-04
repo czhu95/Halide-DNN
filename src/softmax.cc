@@ -5,12 +5,14 @@
 namespace hdnn {
 
 template <typename Dtype>
-Softmax<Dtype>::Softmax() {}
+Softmax<Dtype>::Softmax(const string& name) :
+    Layer<Dtype>(name) {}
 
 template <typename Dtype>
 Tensor Softmax<Dtype>::operator () (const Tensor& x) {
 
     Var c, n;
+    // TODO: not sure we need so many buffer Funcs.
     Func f, exp, scale;
 
     int softmax_features = x.size()[0];
@@ -24,7 +26,7 @@ Tensor Softmax<Dtype>::operator () (const Tensor& x) {
 
 template <typename Dtype>
 vector<int> Softmax<Dtype>::compute_output_size(const vector<int>& input_size) const {
-    return vector<int>(input_size);
+    return input_size;
 }
 
 template class Softmax<float>;

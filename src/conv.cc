@@ -8,7 +8,8 @@ using caffe::ConvolutionParameter;
 using caffe::Blob;
 
 template <typename Dtype>
-Conv2d<Dtype>::Conv2d(int in_channels, int out_channels, int kernel_size, int stride, int padding, bool bias) :
+Conv2d<Dtype>::Conv2d(const string& name, int in_channels, int out_channels, int kernel_size, int stride, int padding, bool bias) :
+    Layer<Dtype>(name),
     in_channels_(in_channels),
     out_channels_(out_channels),
     kernel_size_(kernel_size),
@@ -27,7 +28,7 @@ Conv2d<Dtype>::Conv2d(int in_channels, int out_channels, int kernel_size, int st
 }
 
 template <typename Dtype>
-void Conv2d<Dtype>::CopyParams(vector<shared_ptr<Blob<Dtype>>>& blobs) {
+void Conv2d<Dtype>::copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs) {
     auto weight_blob = blobs[0];
     CHECK_EQ(weight_blob->shape().size(), 4);
     CHECK_EQ(weight_blob->shape(0), out_channels_);

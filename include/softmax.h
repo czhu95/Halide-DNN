@@ -1,5 +1,5 @@
-#ifndef RELU_H_
-#define RELU_H_
+#ifndef SOFTMAX_H_
+#define SOFTMAX_H_
 #include <vector>
 #include "caffe/proto/caffe.pb.h"
 #include "Halide.h"
@@ -11,7 +11,8 @@ namespace hdnn {
 template <typename Dtype>
 class Softmax : public Layer<Dtype> {
 public:
-    Softmax();
+    Softmax(const string& name);
+    Softmax() : Softmax("") {}
     virtual Tensor operator () (const Tensor& v);
 private:
     virtual vector<int> compute_output_size(const vector<int>& input_size) const;

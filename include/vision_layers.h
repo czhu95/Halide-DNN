@@ -1,6 +1,5 @@
 #ifndef VISION_LAYERS_H_
 #define VISION_LAYERS_H_
-#include <vector>
 #include "caffe/proto/caffe.pb.h"
 #include "Halide.h"
 #include "layer.h"
@@ -17,8 +16,11 @@ using boost::shared_ptr;
 template <typename Dtype>
 class Conv2d : public Layer<Dtype> {
 public:
-    Conv2d(int in_channels, int out_channels, int kernel_size, int stride=1, int padding=0, bool bias=true);
-    virtual void CopyParams(vector<shared_ptr<Blob<Dtype>>>& blobs);
+    Conv2d(const string& name, int in_channels, int out_channels, int kernel_size, int stride=1, int padding=0, bool bias=true);
+    Conv2d(int in_channels, int out_channels, int kernel_size, int stride=1, int padding=0, bool bias=true)
+        : Conv2d("", in_channels, out_channels, kernel_size, stride, padding, bias) {}
+    virtual void copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs);
+    virtual bool hasParams() const { return true; }
     virtual Tensor operator () (const Tensor& v);
 private:
     virtual vector<int> compute_output_size(const vector<int>& input_size) const;
@@ -35,7 +37,9 @@ private:
 template <typename Dtype>
 class MaxPool2d : public Layer<Dtype> {
 public:
-    MaxPool2d(int kernel_size, int stride=1, int padding=0);
+    MaxPool2d(const string& name, int kernel_size, int stride=1, int padding=0);
+    MaxPool2d(int kernel_size, int stride=1, int padding=0)
+        : MaxPool2d("", kernel_size, stride, padding) {}
     virtual Tensor operator () (const Tensor& v);
 private:
     virtual vector<int> compute_output_size(const vector<int>& input_size) const;
