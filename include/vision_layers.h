@@ -48,6 +48,20 @@ private:
     int pad_;
 };
 
+template <typename Dtype>
+class AvgPool2d : public Layer<Dtype> {
+public:
+    AvgPool2d(const string& name, int kernel_size, int stride=1, int padding=0);
+    AvgPool2d(int kernel_size, int stride=1, int padding=0)
+        : AvgPool2d("", kernel_size, stride, padding) {}
+    virtual Tensor operator () (const Tensor& v);
+private:
+    virtual vector<int> compute_output_size(const vector<int>& input_size) const;
+    int kernel_size_;
+    int stride_;
+    int pad_;
+};
+
 } // namespace hdnn
 
 #endif

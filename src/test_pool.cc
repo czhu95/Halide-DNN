@@ -20,7 +20,7 @@ using namespace hdnn;
 
 int main(int argc, char* argv[]) {
     caffe::Net<float> caffe_net("cifar10_quick.prototxt", caffe::TEST);
-    int layer_id = 2;
+    int layer_id = 6;
     auto& layers = caffe_net.layers();
     auto& layer = layers[layer_id];
     auto param = layer->layer_param();
@@ -31,10 +31,10 @@ int main(int argc, char* argv[]) {
     auto* output_blob = caffe_net.top_vecs()[layer_id][0];
     caffe::caffe_rng_gaussian<float>(input_blob->count(), 0, 1, input_blob->mutable_cpu_data());
 
-    caffe_net.ForwardFromTo(2, 2);
+    caffe_net.ForwardFromTo(layer_id, layer_id);
     LOG_IF(INFO, Caffe::root_solver()) << "Pool output shape (Caffe): " << output_blob->shape_string();
 
-    auto pool_layer = hdnn::MaxPool2d<float>(3, 2, 0);
+    auto pool_layer = hdnn::AvgPool2d<float>(3, 2);
 
     Buffer<float> input(input_blob->mutable_cpu_data(), reversed(input_blob->shape()));
     Tensor x(Func(input), reversed(input_blob->shape()));
