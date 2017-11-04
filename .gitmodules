@@ -1,0 +1,6 @@
+[submodule "caffe"]
+	path = caffe
+	url = http://github.com/BVLC/caffe.git
+[submodule "Halide"]
+	path = Halide
+	url = https://github.com/halide/Halide.git

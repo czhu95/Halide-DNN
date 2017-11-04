@@ -21,6 +21,7 @@ Tensor MaxPool2d<Dtype>::operator () (const Tensor& x) {
     RDom r(0, kernel_size_, 0, kernel_size_);
     f(w, h, c, n) = Halide::maximum(clamped_x(w * stride_ - pad_ + r.x, h * stride_ - pad_ + r.y, c, n));
 
+    f.compute_root();
     return Tensor(f, compute_output_size(x.size()));
 }
 
@@ -57,6 +58,7 @@ Tensor AvgPool2d<Dtype>::operator () (const Tensor& x) {
     f(w, h, c, n) = Halide::sum(clamped_x(wi, hi, c, n)) /
         Halide::sum(Halide::select(wi < x.size(0) && hi < x.size(1), 1.f, 0.f));
 
+    f.compute_root();
     return Tensor(f, compute_output_size(x.size()));
 }
 

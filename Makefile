@@ -1,3 +1,6 @@
+CXX := g++
+BUILD_DIR := build
+
 CXXFLAGS := -std=c++11 -pthread
 INCLUDE_DIRS := include caffe/include caffe/build/src Halide/include
 LIBRARY_DIRS := /usr/local/lib /usr/lib caffe/build/lib Halide/lib
@@ -18,20 +21,31 @@ LDFLAGS := $(foreach librarydir,$(LIBRARY_DIRS),-L$(librarydir)) \
 # add llvm dependencies
 LDFLAGS += $(shell llvm-config --ldflags --system-libs --libs | sed -e 's/\\/\//g' -e 's/\([a-zA-Z]\):/\/\1/g')
 
-all:
-	g++ src/main.cc src/conv.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o main
+SRCS := $(shell find src -name "*.cc" -printf "%f\n")
+TOOL_SRCS := $(shell find tools -name "*.cc")
+TEST_SRCS := $(shell find test -name "*.cc")
 
-test_conv: src/test_conv.cc src/conv.cc
-	g++ src/test_conv.cc src/conv.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_conv
+OBJS := $(addprefix $(BUILD_DIR)/, ${SRCS:.cc=.o})
 
-test_pool: src/test_pool.cc src/pool.cc
-	g++ src/test_pool.cc src/pool.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_pool
+TOOL_BINS := $(addprefix $(BUILD_DIR)/, ${TOOL_SRCS:.cc=})
+TEST_BINS := $(addprefix $(BUILD_DIR)/, ${TEST_SRCS:.cc=})
 
-test_relu: src/test_relu.cc src/relu.cc
-	g++ src/test_relu.cc src/relu.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_relu
+all: $(TEST_BINS) $(TOOL_BINS)
 
-test_linear: src/test_linear.cc src/linear.cc
-	g++ src/test_linear.cc src/linear.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_linear
+$(TEST_BINS): $(BUILD_DIR)/% : %.cc $(OBJS)
+	@ mkdir -p $(BUILD_DIR)/test
+	@ echo LD $@
+	@ $(CXX) $^ -o $@ $(CXXFLAGS) $(FLAGS) $(LDFLAGS)
 
-test_softmax: src/test_softmax.cc src/softmax.cc
-	g++ src/test_softmax.cc src/softmax.cc $(CXXFLAGS) $(FLAGS) $(LDFLAGS) -o test_softmax
+$(TOOL_BINS): $(BUILD_DIR)/% : %.cc $(OBJS)
+	@ mkdir -p $(BUILD_DIR)/tools
+	@ echo LD $@
+	@ $(CXX) $^ -o $@ $(CXXFLAGS) $(FLAGS) $(LDFLAGS)
+
+$(OBJS): $(BUILD_DIR)/%.o : src/%.cc include/*.h
+	@ mkdir -p $(BUILD_DIR)
+	@ echo CXX -o $@
+	@ $(CXX) -c $< -o $@ $(CXXFLAGS) $(FLAGS) $(LDFLAGS)
+
+clean:
+	@- rm -rf build

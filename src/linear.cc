@@ -59,7 +59,7 @@ Tensor Linear<Dtype>::operator () (const Tensor& x) {
     if (bias_term_)
         f(c, n) += bias_(c);
 
-    // this->func_(x, y, z, w) += Halide::abs(weight_(x + r.x, y + r.y, z + r.z, w + r.w));
+    f.compute_root();
     return Tensor(f, compute_output_size(x.size()));
 }
 

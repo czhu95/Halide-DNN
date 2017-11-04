@@ -21,6 +21,10 @@ Tensor Softmax<Dtype>::operator () (const Tensor& x) {
     scale(n) = Halide::sum(exp(r.x, n));
     f(c, n) = exp(c, n) / scale(n);
 
+    f.compute_root();
+    scale.compute_root();
+    exp.compute_root();
+
     return Tensor(f, compute_output_size(x.size()));
 }
 

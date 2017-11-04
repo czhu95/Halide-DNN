@@ -10,8 +10,12 @@ class Tensor {
 public:
     Tensor(const Func& func, const vector<int>& size) :
         func_(func), size_(size) {}
+
     Tensor(const Func& func, const vector<int>&& size) :
         func_(func), size_(size) {}
+
+    // TODO: Can we construct a tensor directly from a buffer?
+
     const Func& func() const { return func_; }
     const vector<pair<Expr, Expr>> bounds() const {
         vector<pair<Expr, Expr>> bounds;
