@@ -2,7 +2,7 @@ CXX := g++
 BUILD_DIR := build
 
 CXXFLAGS := -std=c++11 -pthread
-INCLUDE_DIRS := include caffe/include caffe/build/src Halide/include
+INCLUDE_DIRS := include caffe/build/install/include caffe/build/src Halide/include
 LIBRARY_DIRS := /usr/local/lib /usr/lib caffe/build/lib Halide/lib
 LIBRARIES := glog gflags boost_system boost_filesystem caffe Halide
 
