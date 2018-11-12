@@ -37,6 +37,28 @@ private:
 
 
 template <typename Dtype>
+class BatchNorm2d : public Layer<Dtype> {
+public:
+    BatchNorm2d(const string& name, int num_channels, float eps=1e-5, bool affine=true);
+    BatchNorm2d(int num_channels, float eps=1e-5, bool affine=true)
+        : BatchNorm2d("", num_channels, eps, affine) {}
+    virtual void copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs);
+    virtual bool hasParams() const { return true; }
+    virtual Tensor operator () (const Tensor& v);
+
+private:
+    virtual vector<int> compute_output_size(const vector<int>& input_size) const {
+        return input_size;
+    }
+
+    int num_channels_;
+    bool affine_;
+    float eps_;
+    Buffer<Dtype> mean_, std_, scale_, shift_;
+};
+
+
+template <typename Dtype>
 class MaxPool2d : public Layer<Dtype> {
 public:
     MaxPool2d(const string& name, int kernel_size, int stride=1, int padding=0);
