@@ -21,6 +21,8 @@ private:
     AvgPool2d<Dtype> avg_pool_3x3;
     ReLU<Dtype> relu;
     Softmax<Dtype> softmax;
+
+    vector<Layer<Dtype>*> param_layers_;
 };
 }
 

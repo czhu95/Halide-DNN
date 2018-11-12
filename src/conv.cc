@@ -49,10 +49,13 @@ void Conv2d<Dtype>::copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs) {
     weight_.copy_from(Buffer<Dtype>(weight_blob->mutable_cpu_data(), reversed(weight_blob->shape())));
 
     if (bias_term_) {
+        CHECK_EQ(blobs.size(), 2);
         auto bias_blob = blobs[1];
         CHECK_EQ(bias_blob->shape().size(), 1);
         CHECK_EQ(bias_blob->shape(0), out_channels_);
         bias_.copy_from(Buffer<Dtype>(bias_blob->mutable_cpu_data(), reversed(bias_blob->shape())));
+    } else {
+        CHECK_EQ(blobs.size(), 1);
     }
 }
 

@@ -5,15 +5,16 @@
 namespace hdnn {
 
 template <typename Dtype>
-class Layer {
+class Layer : public Module<Dtype> {
 public:
     Layer(const string& name="") : name_(name) {}
     virtual void copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs) {}
     virtual const string& name() const { return name_; }
+    virtual const string type() const = 0;
     virtual bool hasParams() const { return false; };
-protected:
-    virtual vector<int> compute_output_size(const vector<int>& input_size) const {};
 
+protected:
+    virtual vector<int> compute_output_size(const vector<int>& input_size) const = 0;
     string name_;
 };
 

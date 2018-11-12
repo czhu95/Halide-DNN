@@ -13,6 +13,7 @@ class ReLU : public Layer<Dtype> {
 public:
     ReLU(const string& name);
     ReLU() : ReLU("") {}
+    virtual const string type() const { return "ReLU"; }
     virtual Tensor operator () (const Tensor& v);
 private:
     virtual vector<int> compute_output_size(const vector<int>& input_size) const;

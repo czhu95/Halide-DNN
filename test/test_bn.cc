@@ -4,6 +4,7 @@
 #include <glog/logging.h>
 #include <vector>
 #include <string>
+#include <math.h>
 
 #include "common.h"
 #include "util.h"
@@ -26,7 +27,7 @@ using namespace hdnn;
 
 int main(int argc, char* argv[]) {
     // disable verbose logging of caffe
-    fLI::FLAGS_minloglevel = 2;
+    fLI::FLAGS_minloglevel = 0;
     Net<float> caffe_net("models/mobilenet_v2/MobileNet-v2-deploy.prototxt", caffe::TEST);
     fLI::FLAGS_minloglevel = 0;
 
@@ -37,7 +38,7 @@ int main(int argc, char* argv[]) {
     int bn_layer_id = 2;
     auto& bn_layer = layers[bn_layer_id];
     auto param = bn_layer->layer_param();
-    LOG_IF(INFO, Caffe::root_solver()) << param.type();
+    LOG(INFO) << param.type();
     CHECK_EQ(param.type(), "BatchNorm");
 
     auto& bn_blobs = bn_layer->blobs();
@@ -45,19 +46,19 @@ int main(int argc, char* argv[]) {
     caffe::caffe_rng_uniform<float>(bn_blobs[1]->count(), 0, 1, bn_blobs[1]->mutable_cpu_data());
     caffe::caffe_rng_uniform<float>(bn_blobs[2]->count(), .5, 1, bn_blobs[2]->mutable_cpu_data());
     params.insert(params.end(), bn_blobs.begin(), bn_blobs.end());
-    LOG_IF(INFO, Caffe::root_solver()) << "Weight shape (Caffe): " << bn_blobs[0]->shape_string();
+    LOG(INFO) << "Weight shape (Caffe): " << bn_blobs[0]->shape_string();
 
     int scale_layer_id = bn_layer_id + 1;
     auto& scale_layer = layers[scale_layer_id];
     param = scale_layer->layer_param();
-    LOG_IF(INFO, Caffe::root_solver()) << param.type();
+    LOG(INFO) << param.type();
     CHECK_EQ(param.type(), "Scale");
 
     auto& scale_blobs = scale_layer->blobs();
     caffe::caffe_rng_uniform<float>(scale_blobs[0]->count(), 0, 1, scale_blobs[0]->mutable_cpu_data());
     caffe::caffe_rng_uniform<float>(scale_blobs[1]->count(), 0, 1, scale_blobs[1]->mutable_cpu_data());
     params.insert(params.end(), scale_blobs.begin(), scale_blobs.end());
-    LOG_IF(INFO, Caffe::root_solver()) << "Weight shape (Caffe): " << scale_blobs[0]->shape_string();
+    LOG(INFO) << "Weight shape (Caffe): " << scale_blobs[0]->shape_string();
 
     auto* input_blob = caffe_net.bottom_vecs()[bn_layer_id][0];
     auto* output_blob = caffe_net.top_vecs()[scale_layer_id][0];
@@ -67,7 +68,7 @@ int main(int argc, char* argv[]) {
     input_clone.CopyFrom(*input_blob, false, true);
 
     caffe_net.ForwardFromTo(bn_layer_id, scale_layer_id);
-    LOG_IF(INFO, Caffe::root_solver()) << "bn output shape (Caffe): " << output_blob->shape_string();
+    LOG(INFO) << "bn output shape (Caffe): " << output_blob->shape_string();
 
     auto channels = input_blob->shape(1);
     auto bn = hdnn::BatchNorm2d<float>(channels);
@@ -84,14 +85,17 @@ int main(int argc, char* argv[]) {
     for (auto it = size.begin(); it != size.end(); it ++) {
         size_string += std::to_string(*it) + " ";
     }
-    LOG_IF(INFO, Caffe::root_solver()) << "bn output size (Halide): " << size_string;
+    LOG(INFO) << "bn output size (Halide): " << size_string;
 
     for (int n = 0; n < output_blob->shape(0); n ++)
         for (int c = 0; c < output_blob->shape(1); c ++)
             for (int h = 0; h < output_blob->shape(2); h ++)
                 for (int w = 0; w < output_blob->shape(3); w ++)
-                    CHECK_LT(std::abs(output_blob->data_at(n, c, h, w) - halide_output(w, h, c, n)) , 1e-4) << n << " " << c << " " << h << " " << w;
+                    CHECK_LT(std::abs(output_blob->data_at(n, c, h, w) - halide_output(w, h, c, n)), 1e-5)
+                        << n << " " << c << " " << h << " " << w << std::endl
+                        << (input_clone.data_at(n, c, h, w) - bn_blobs[0]->data_at(c, 0, 0, 0)) / sqrt(bn_blobs[1]->data_at(c, 0, 0, 0))
+                        * scale_blobs[0]->data_at(c, 0, 0, 0) + scale_blobs[1]->data_at(c, 0, 0, 0) << " " << output_blob->data_at(n, c, h, w);
 
-    LOG_IF(INFO, Caffe::root_solver()) << "Passed.";
+    LOG(INFO) << "Passed.";
     return 0;
 }

@@ -13,6 +13,7 @@ class Softmax : public Layer<Dtype> {
 public:
     Softmax(const string& name);
     Softmax() : Softmax("") {}
+    virtual const string type() const { return "Softmax"; }
     virtual Tensor operator () (const Tensor& v);
 private:
     virtual vector<int> compute_output_size(const vector<int>& input_size) const;

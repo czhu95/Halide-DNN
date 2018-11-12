@@ -14,6 +14,7 @@ public:
     Linear(const string& name, int in_features, int out_features, bool bias=true);
     Linear(int in_features, int out_features, bool bias=true)
         : Linear("", in_features, out_features, bias) {}
+    virtual const string type() const { return "Linear"; }
     virtual void copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs);
     virtual bool hasParams() const { return true; }
     virtual Tensor operator () (const Tensor& v);
