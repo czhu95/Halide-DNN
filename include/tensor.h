@@ -39,9 +39,22 @@ public:
     }
     const vector<int>& size() const { return size_; }
     int size(int n) const { return size_[n]; }
+
+    // basic math operations, overriding Halide::Func
+    friend Tensor operator+(const Tensor& o1, const Tensor& o2);
+    friend Tensor operator-(const Tensor& o1, const Tensor& o2);
+    friend Tensor operator*(const Tensor& o1, const Tensor& o2);
+    friend Tensor operator/(const Tensor& o1, const Tensor& o2);
+
 private:
     Func func_;
     vector<int> size_;
 };
+
+Tensor operator+(const Tensor& o1, const Tensor& o2);
+Tensor operator-(const Tensor& o1, const Tensor& o2);
+Tensor operator*(const Tensor& o1, const Tensor& o2);
+Tensor operator/(const Tensor& o1, const Tensor& o2);
+
 }
 #endif
