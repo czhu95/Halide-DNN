@@ -16,9 +16,9 @@ using boost::shared_ptr;
 template <typename Dtype>
 class Conv2d : public Layer<Dtype> {
 public:
-    Conv2d(const string& name, int in_channels, int out_channels, int kernel_size, int stride=1, int padding=0, bool bias=true);
-    Conv2d(int in_channels, int out_channels, int kernel_size, int stride=1, int padding=0, bool bias=true)
-        : Conv2d("", in_channels, out_channels, kernel_size, stride, padding, bias) {}
+    Conv2d(const string& name, int in_channels, int out_channels, int kernel_size, int stride=1, int padding=0, bool bias=true, int groups=1);
+    Conv2d(int in_channels, int out_channels, int kernel_size, int stride=1, int padding=0, bool bias=true, int groups=1)
+        : Conv2d("", in_channels, out_channels, kernel_size, stride, padding, bias, groups) {}
     virtual void copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs);
     virtual bool hasParams() const { return true; }
     virtual Tensor operator () (const Tensor& v);
@@ -29,27 +29,7 @@ private:
     int kernel_size_;
     int stride_;
     int pad_;
-    bool bias_term_;
-    Buffer<Dtype> weight_;
-    Buffer<Dtype> bias_;
-};
-
-
-template <typename Dtype>
-class DepthwiseConv2d : public Layer<Dtype> {
-public:
-    DepthwiseConv2d(const string& name, int channels, int kernel_size, int stride=1, int padding=0, bool bias=true);
-    DepthwiseConv2d(int channels, int kernel_size, int stride=1, int padding=0, bool bias=true)
-        : DepthwiseConv2d("", channels, kernel_size, stride, padding, bias) {}
-    virtual void copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs);
-    virtual bool hasParams() const { return true; }
-    virtual Tensor operator () (const Tensor& v);
-private:
-    virtual vector<int> compute_output_size(const vector<int>& input_size) const;
-    int channels_;
-    int kernel_size_;
-    int stride_;
-    int pad_;
+    int groups_;
     bool bias_term_;
     Buffer<Dtype> weight_;
     Buffer<Dtype> bias_;

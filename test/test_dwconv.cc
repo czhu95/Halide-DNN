@@ -51,7 +51,8 @@ int main(int argc, char* argv[]) {
     caffe_net.ForwardFromTo(layer_id, layer_id);
     LOG_IF(INFO, Caffe::root_solver()) << "DepthwiseConv output shape (Caffe): " << output_blob->shape_string();
 
-    auto dwconv_layer = hdnn::DepthwiseConv2d<float>(input_blob->shape(1), 3, 1, 1, false);
+    auto channels = input_blob->shape(1);
+    auto dwconv_layer = hdnn::Conv2d<float>(channels, channels, 3, 1, 1, false, channels);
     dwconv_layer.copyParams(layer->blobs());
 
     Buffer<float> input(input_blob->mutable_cpu_data(), reversed(input_blob->shape()));

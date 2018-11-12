@@ -8,18 +8,26 @@ using caffe::ConvolutionParameter;
 using caffe::Blob;
 
 template <typename Dtype>
-Conv2d<Dtype>::Conv2d(const string& name, int in_channels, int out_channels, int kernel_size, int stride, int padding, bool bias) :
+Conv2d<Dtype>::Conv2d(const string& name, int in_channels, int out_channels, int kernel_size, int stride, int padding, bool bias, int groups) :
     Layer<Dtype>(name),
     in_channels_(in_channels),
     out_channels_(out_channels),
     kernel_size_(kernel_size),
     stride_(stride),
     pad_(padding),
+    groups_(groups),
     bias_term_(bias) {
 
-    // vector<int> weight_shape{out_channels_, in_channels_, kernel_size_, kernel_size_};
-    vector<int> weight_size{kernel_size_, kernel_size_, in_channels_, out_channels_};
-    weight_ = Buffer<Dtype>(weight_size);
+    if (groups_ == 1) {
+        vector<int> weight_size{kernel_size_, kernel_size_, in_channels_, out_channels_};
+        weight_ = Buffer<Dtype>(weight_size);
+    } else {
+        // support only group = 1 or depthwise separable convs
+        CHECK_EQ(groups_, in_channels_);
+        CHECK_EQ(in_channels_, out_channels_);
+        vector<int> weight_size{kernel_size_, kernel_size_, 1, out_channels_};
+        weight_ = Buffer<Dtype>(weight_size);
+    }
 
     if (bias_term_) {
         vector<int> bias_size{out_channels_};
@@ -32,7 +40,10 @@ void Conv2d<Dtype>::copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs) {
     auto weight_blob = blobs[0];
     CHECK_EQ(weight_blob->shape().size(), 4);
     CHECK_EQ(weight_blob->shape(0), out_channels_);
-    CHECK_EQ(weight_blob->shape(1), in_channels_);
+    if (groups_ == 1)
+        CHECK_EQ(weight_blob->shape(1), in_channels_);
+    else
+        CHECK_EQ(weight_blob->shape(1), 1);
     CHECK_EQ(weight_blob->shape(2), kernel_size_);
     CHECK_EQ(weight_blob->shape(3), kernel_size_);
     weight_.copy_from(Buffer<Dtype>(weight_blob->mutable_cpu_data(), reversed(weight_blob->shape())));
@@ -52,9 +63,15 @@ Tensor Conv2d<Dtype>::operator () (const Tensor& x) {
     Func clamped_x, f;
 
     clamped_x = Halide::BoundaryConditions::constant_exterior(x.func(), 0.f, x.bounds());
-    RDom r(0, kernel_size_, 0, kernel_size_, 0, in_channels_);
-    f(w, h, c, n) = Halide::sum(weight_(r.x, r.y, r.z, c) *
-            clamped_x(w * stride_ - pad_ + r.x, h * stride_ - pad_ + r.y, r.z, n));
+    if (groups_ == 1) {
+        RDom r(0, kernel_size_, 0, kernel_size_, 0, in_channels_);
+        f(w, h, c, n) = Halide::sum(weight_(r.x, r.y, r.z, c) *
+                clamped_x(w * stride_ - pad_ + r.x, h * stride_ - pad_ + r.y, r.z, n));
+    } else {
+        RDom r(0, kernel_size_, 0, kernel_size_);
+        f(w, h, c, n) = Halide::sum(weight_(r.x, r.y, 0, c) *
+                clamped_x(w * stride_ - pad_ + r.x, h * stride_ - pad_ + r.y, c, n));
+    }
     if (bias_term_)
         f(w, h, c, n) += bias_(c);
 
