@@ -2,7 +2,7 @@
 #define VISION_LAYERS_H_
 #include "caffe/proto/caffe.pb.h"
 #include "Halide.h"
-#include "layer.h"
+#include "module.h"
 #include "tensor.h"
 
 namespace hdnn {
@@ -14,14 +14,14 @@ using std::vector;
 using boost::shared_ptr;
 
 template <typename Dtype>
-class Conv2d : public Layer<Dtype> {
+class Conv2d : public Module<Dtype> {
 public:
     Conv2d(const string& name, int in_channels, int out_channels, int kernel_size, int stride=1, int padding=0, bool bias=true, int groups=1);
     Conv2d(int in_channels, int out_channels, int kernel_size, int stride=1, int padding=0, bool bias=true, int groups=1)
         : Conv2d("", in_channels, out_channels, kernel_size, stride, padding, bias, groups) {}
     virtual const string type() const { return "Conv2d"; }
     virtual void copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs);
-    virtual bool hasParams() const { return true; }
+    virtual bool hasParam() const { return true; }
     virtual Tensor operator () (const Tensor& v);
 private:
     virtual vector<int> compute_output_size(const vector<int>& input_size) const;
@@ -38,14 +38,14 @@ private:
 
 
 template <typename Dtype>
-class BatchNorm2d : public Layer<Dtype> {
+class BatchNorm2d : public Module<Dtype> {
 public:
     BatchNorm2d(const string& name, int num_channels, float eps=1e-5, bool affine=true);
     BatchNorm2d(int num_channels, float eps=1e-5, bool affine=true)
         : BatchNorm2d("", num_channels, eps, affine) {}
     virtual const string type() const { return "BatchNorm2d"; }
     virtual void copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs);
-    virtual bool hasParams() const { return true; }
+    virtual bool hasParam() const { return true; }
     virtual Tensor operator () (const Tensor& v);
 
 private:
@@ -61,7 +61,7 @@ private:
 
 
 template <typename Dtype>
-class MaxPool2d : public Layer<Dtype> {
+class MaxPool2d : public Module<Dtype> {
 public:
     MaxPool2d(const string& name, int kernel_size, int stride=1, int padding=0);
     MaxPool2d(int kernel_size, int stride=1, int padding=0)
@@ -76,7 +76,7 @@ private:
 };
 
 template <typename Dtype>
-class AvgPool2d : public Layer<Dtype> {
+class AvgPool2d : public Module<Dtype> {
 public:
     AvgPool2d(const string& name, int kernel_size, int stride=1, int padding=0);
     AvgPool2d(int kernel_size, int stride=1, int padding=0)

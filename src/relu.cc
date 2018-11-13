@@ -4,7 +4,7 @@ namespace hdnn {
 
 template <typename Dtype>
 ReLU<Dtype>::ReLU(const string& name) :
-    Layer<Dtype>(name) {}
+    Module<Dtype>(name) {}
 
 template <typename Dtype>
 Tensor ReLU<Dtype>::operator () (const Tensor& x) {

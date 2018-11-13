@@ -6,7 +6,7 @@ namespace hdnn {
 
 template <typename Dtype>
 Linear<Dtype>::Linear(const string& name, int in_features, int out_features, bool bias) :
-    Layer<Dtype>(name),
+    Module<Dtype>(name),
     in_features_(in_features),
     out_features_(out_features),
     bias_term_(bias) {

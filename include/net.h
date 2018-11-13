@@ -2,7 +2,7 @@
 #define NET_H_
 #include "common.h"
 #include "tensor.h"
-#include "layer.h"
+#include "module.h"
 
 namespace hdnn {
 
@@ -10,21 +10,22 @@ template <typename Dtype>
 class Net : public Module<Dtype> {
 public:
     Net() {};
-    void fromCaffeNet(caffe::Net<Dtype>& net) {
+    virtual const string type() const { return "Net"; };
+    virtual void fromCaffeNet(caffe::Net<Dtype>& net) {
         auto source_layers = net.layers();
         auto source_layer = source_layers.begin();
-        for (auto target_layer = param_layers_.begin();
-                target_layer != param_layers_.end();
+        auto param_layers = this->flatten();
+        for (auto target_layer = param_layers.begin();
+                target_layer != param_layers.end();
                 target_layer ++) {
-            if (!(*target_layer)->hasParams())
+            if (!(*target_layer)->hasParam())
                 continue;
             const string& target_name = (*target_layer)->name();
             const string& target_type = (*target_layer)->type();
-            while (!matchCaffeType(target_type,
-                        (*source_layer)->layer_param().type())) {
-                if (++source_layer == source_layers.end())
-                    LOG(FATAL) << "Cannot find parameters for " << target_name;
-            }
+            while (source_layer != source_layers.end()
+                   && !matchCaffeType(target_type, (*source_layer)->layer_param().type()))
+                source_layer ++;
+            CHECK(source_layer != source_layers.end()) << "Cannot find parameters for " << target_name;
             if (target_type == "BatchNorm2d"
                     && source_layer + 1 != source_layers.end()
                     && (*(source_layer + 1))->layer_param().type() == "Scale") {

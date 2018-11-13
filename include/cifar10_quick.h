@@ -14,15 +14,9 @@ class Cifar10Quick : public Net<Dtype> {
 public:
     Cifar10Quick();
     virtual Tensor operator () (const Tensor&);
+    virtual const string type() const { return "Cifar10Quick"; };
 private:
-    Conv2d<Dtype> conv1, conv2, conv3;
-    Linear<Dtype> linear1, linear2;
-    MaxPool2d<Dtype> max_pool_3x3;
-    AvgPool2d<Dtype> avg_pool_3x3;
-    ReLU<Dtype> relu;
-    Softmax<Dtype> softmax;
-
-    vector<Layer<Dtype>*> param_layers_;
+    Sequential<Dtype> features, classifier;
 };
 }
 

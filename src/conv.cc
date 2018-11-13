@@ -9,7 +9,7 @@ using caffe::Blob;
 
 template <typename Dtype>
 Conv2d<Dtype>::Conv2d(const string& name, int in_channels, int out_channels, int kernel_size, int stride, int padding, bool bias, int groups) :
-    Layer<Dtype>(name),
+    Module<Dtype>(name),
     in_channels_(in_channels),
     out_channels_(out_channels),
     kernel_size_(kernel_size),

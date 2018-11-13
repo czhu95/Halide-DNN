@@ -6,7 +6,7 @@ namespace hdnn {
 
 template <typename Dtype>
 Softmax<Dtype>::Softmax(const string& name) :
-    Layer<Dtype>(name) {}
+    Module<Dtype>(name) {}
 
 template <typename Dtype>
 Tensor Softmax<Dtype>::operator () (const Tensor& x) {

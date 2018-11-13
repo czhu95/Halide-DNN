@@ -3,13 +3,13 @@
 #include <vector>
 #include "caffe/proto/caffe.pb.h"
 #include "Halide.h"
-#include "layer.h"
+#include "module.h"
 #include "tensor.h"
 
 namespace hdnn {
 
 template <typename Dtype>
-class ReLU : public Layer<Dtype> {
+class ReLU : public Module<Dtype> {
 public:
     ReLU(const string& name);
     ReLU() : ReLU("") {}

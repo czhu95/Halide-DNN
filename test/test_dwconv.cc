@@ -36,20 +36,20 @@ int main(int argc, char* argv[]) {
     // auto kernel_size = conv_param.kernel_size(0);
     // auto pad = conv_param.pad(0);
     // auto stride = conv_param.stride(0);
-    LOG_IF(INFO, Caffe::root_solver()) << param.type();
+    LOG(INFO) << param.type();
     CHECK_EQ(param.type(), "Convolution");
 
     auto& blobs = layer->blobs();
     caffe::caffe_rng_uniform<float>(blobs[0]->count(), 0, 1, blobs[0]->mutable_cpu_data());
     // caffe::caffe_rng_uniform<float>(blobs[1]->count(), 0, 1, blobs[1]->mutable_cpu_data());
-    LOG_IF(INFO, Caffe::root_solver()) << "Weight shape (Caffe): " << blobs[0]->shape_string();
+    LOG(INFO) << "Weight shape (Caffe): " << blobs[0]->shape_string();
 
     auto* input_blob = caffe_net.bottom_vecs()[layer_id][0];
     auto* output_blob = caffe_net.top_vecs()[layer_id][0];
     caffe::caffe_rng_gaussian<float>(input_blob->count(), 0, 1, input_blob->mutable_cpu_data());
 
     caffe_net.ForwardFromTo(layer_id, layer_id);
-    LOG_IF(INFO, Caffe::root_solver()) << "DepthwiseConv output shape (Caffe): " << output_blob->shape_string();
+    LOG(INFO) << "DepthwiseConv output shape (Caffe): " << output_blob->shape_string();
 
     auto channels = input_blob->shape(1);
     auto dwconv_layer = hdnn::Conv2d<float>(channels, channels, 3, 1, 1, false, channels);
@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
     for (auto it = size.begin(); it != size.end(); it ++) {
         size_string += std::to_string(*it) + " ";
     }
-    LOG_IF(INFO, Caffe::root_solver()) << "DepthwiseConv output size (Halide): " << size_string;
+    LOG(INFO) << "DepthwiseConv output size (Halide): " << size_string;
 
     for (int n = 0; n < output_blob->shape(0); n ++)
         for (int c = 0; c < output_blob->shape(1); c ++)
@@ -74,6 +74,6 @@ int main(int argc, char* argv[]) {
                 for (int w = 0; w < output_blob->shape(3); w ++)
                     CHECK_LT(std::abs(output_blob->data_at(n, c, h, w) - halide_output(w, h, c, n)) , 1e-5) << n << " " << c << " " << h << " " << w;
 
-    LOG_IF(INFO, Caffe::root_solver()) << "Passed.";
+    LOG(INFO) << "Passed.";
     return 0;
 }

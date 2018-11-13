@@ -13,7 +13,7 @@ using caffe::Blob;
 
 template <typename Dtype>
 BatchNorm2d<Dtype>::BatchNorm2d(const string& name, int num_channels, float eps, bool affine) :
-    Layer<Dtype>(name),
+    Module<Dtype>(name),
     num_channels_(num_channels),
     eps_(eps),
     affine_(affine) {
