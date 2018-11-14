@@ -23,16 +23,16 @@ Linear<Dtype>::Linear(const string& name, int in_features, int out_features, boo
 template <typename Dtype>
 void Linear<Dtype>::copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs) {
     auto weight_blob = blobs[0];
-    CHECK_EQ(weight_blob->shape().size(), 2);
+    // CHECK_EQ(weight_blob->shape().size(), 2);
     CHECK_EQ(weight_blob->shape(0), out_features_);
-    CHECK_EQ(weight_blob->shape(1), in_features_);
-    weight_.copy_from(Buffer<Dtype>(weight_blob->mutable_cpu_data(), reversed(weight_blob->shape())));
+    CHECK_EQ(weight_blob->count(1), in_features_);
+    weight_.copy_from(Buffer<Dtype>(weight_blob->mutable_cpu_data(), {in_features_, out_features_}));
 
     if (bias_term_) {
         auto bias_blob = blobs[1];
         CHECK_EQ(bias_blob->shape().size(), 1);
         CHECK_EQ(bias_blob->shape(0), out_features_);
-        bias_.copy_from(Buffer<Dtype>(bias_blob->mutable_cpu_data(), reversed(bias_blob->shape())));
+        bias_.copy_from(Buffer<Dtype>(bias_blob->mutable_cpu_data(), {out_features_}));
     }
 }
 

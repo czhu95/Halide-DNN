@@ -45,6 +45,7 @@ public:
     friend Tensor operator-(const Tensor& o1, const Tensor& o2);
     friend Tensor operator*(const Tensor& o1, const Tensor& o2);
     friend Tensor operator/(const Tensor& o1, const Tensor& o2);
+    // Tensor& mean(int dim);
 
 private:
     Func func_;

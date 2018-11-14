@@ -7,10 +7,10 @@
 namespace hdnn {
 
 template <typename Dtype>
-class Net : public Module<Dtype> {
+class Net {
 public:
     Net() {};
-    virtual const string type() const { return "Net"; };
+    // virtual const string type() const { return "Net"; };
     virtual void fromCaffeNet(caffe::Net<Dtype>& net) {
         auto source_layers = net.layers();
         auto source_layer = source_layers.begin();
@@ -52,6 +52,9 @@ public:
             }
         }
     }
+    virtual Tensor operator () (const Tensor& input) = 0;
+    virtual vector<shared_ptr<Module<Dtype>>> flatten() = 0;
+    // virtual Func compile_jit(const Tensor& input) { return Halide::Func(); }
 
 protected:
     bool matchCaffeType(const string& hdnn_type, const string& caffe_type) {
@@ -60,7 +63,8 @@ protected:
         else if (hdnn_type == "BatchNorm2d")
             return caffe_type == "BatchNorm";
         else if (hdnn_type == "Linear")
-            return caffe_type == "InnerProduct";
+            // Allow load 1x1 conv as linear module
+            return caffe_type == "InnerProduct" || caffe_type == "Convolution";
         else if (hdnn_type == "Pooling")
             return caffe_type == "Pooling";
         else

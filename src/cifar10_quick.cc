@@ -33,21 +33,17 @@ Tensor Cifar10Quick<Dtype>::operator () (const Tensor& input) {
     x = features(x);
     x = classifier(x);
     return x;
-    // x = conv1(x);
-    // x = max_pool_3x3(x);
-    // x = relu(x);
-    // x = conv2(x);
-    // x = relu(x);
-    // x = avg_pool_3x3(x);
-    // x = conv3(x);
-    // x = relu(x);
-    // x = avg_pool_3x3(x);
+}
 
-    // x = linear1(x);
-    // x = linear2(x);
-    // x = softmax(x);
 
-    // return x;
+template <typename Dtype>
+vector<shared_ptr<Module<Dtype>>> Cifar10Quick<Dtype>::flatten() {
+    vector<shared_ptr<Module<Dtype>>> m;
+    auto flatfeat = features.flatten();
+    auto flatclas = classifier.flatten();
+    m.insert(m.end(), flatfeat.begin(), flatfeat.end());
+    m.insert(m.end(), flatclas.begin(), flatclas.end());
+    return m;
 }
 
 template class Cifar10Quick<float>;

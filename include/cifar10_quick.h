@@ -14,6 +14,7 @@ class Cifar10Quick : public Net<Dtype> {
 public:
     Cifar10Quick();
     virtual Tensor operator () (const Tensor&);
+    virtual vector<shared_ptr<Module<Dtype>>> flatten();
     virtual const string type() const { return "Cifar10Quick"; };
 private:
     Sequential<Dtype> features, classifier;

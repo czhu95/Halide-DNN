@@ -78,8 +78,8 @@ private:
 template <typename Dtype>
 class AvgPool2d : public Module<Dtype> {
 public:
-    AvgPool2d(const string& name, int kernel_size, int stride=1, int padding=0);
-    AvgPool2d(int kernel_size, int stride=1, int padding=0)
+    AvgPool2d(const string& name, int kernel_size=0, int stride=1, int padding=0);
+    AvgPool2d(int kernel_size=0, int stride=1, int padding=0)
         : AvgPool2d("", kernel_size, stride, padding) {}
     virtual const string type() const { return "AvgPool2d"; }
     virtual Tensor operator () (const Tensor& v);

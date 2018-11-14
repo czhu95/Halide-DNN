@@ -57,17 +57,26 @@ int main(int argc, char* argv[]) {
     Func output_func = halide_output.func();
     // output_func.trace_stores();
 
-    // output_func.compile_jit();
-    Buffer<float> output_buffer = output_func.realize(halide_output.size());
+    output_func.compile_jit();
+    LOG(INFO) << "Compilation done.";
+    const auto size = halide_output.size();
+    Buffer<float> output_buffer = output_func.realize(size);
 
-    // for (int n = 0; n < output_blob->shape(0); n ++)
-    //     for (int c = 0; c < output_blob->shape(1); c ++)
-    //         for (int h = 0; h < output_blob->shape(2); h ++)
-    //             for (int w = 0; w < output_blob->shape(3); w ++)
-    //                 CHECK_LT(std::abs(output_blob->data_at(n, c, h, w) -
-    //                       output_buffer(w, h, c, n)), 5e-4) << n << " " << c << " " << h << " " << w << std::endl
-    //                       << output_blob->data_at(n, c, h, w) << ", " << output_buffer(w, h, c, n);
+    string size_string;
+    for (auto it = size.begin(); it != size.end(); it ++) {
+        size_string += std::to_string(*it) + " ";
+    }
+    LOG(INFO) << "Output size (Caffe): " << output_blob->shape_string();
+    LOG(INFO) << "Output size (Halide): " << size_string;
 
-    // LOG(INFO) << "Passed.";
+    for (int n = 0; n < output_blob->shape(0); n ++)
+        for (int c = 0; c < output_blob->shape(1); c ++)
+            for (int h = 0; h < output_blob->shape(2); h ++)
+                for (int w = 0; w < output_blob->shape(3); w ++)
+                    CHECK_LT(std::abs(output_blob->data_at(n, c, h, w) -
+                          output_buffer(c, n)), 5e-4) << n << " " << c << " " << h << " " << w << std::endl
+                          << output_blob->data_at(n, c, h, w) << ", " << output_buffer(w, h, c, n);
+
+    LOG(INFO) << "Passed.";
     return 0;
 }
