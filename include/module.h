@@ -12,7 +12,7 @@ public:
     Module() {};
     Module(const string& name) : name_(name) {}
     virtual Tensor operator () (const Tensor& input) = 0;
-    inline virtual vector<shared_ptr<Module<Dtype>>> modules() { return {}; };
+    virtual vector<shared_ptr<Module<Dtype>>> modules() { return {}; };
     virtual vector<shared_ptr<Module<Dtype>>> flatten() { return {}; };
     virtual void copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs) {}
     virtual const string& name() const { return name_; }

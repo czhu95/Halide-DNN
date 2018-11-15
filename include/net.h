@@ -42,13 +42,13 @@ public:
                 param_buffer.insert(param_buffer.end(),
                         scale_blobs.begin(), scale_blobs.end());
                 // copy from blob buffer array
-                (*target_layer)->copyParams(param_buffer);
-                LOG(INFO) << "Copied parameters for " << target_name
+                LOG(INFO) << "Copying parameters for " << target_name
                     << " (" << bn_name << ", " << scale_name << ")";
+                (*target_layer)->copyParams(param_buffer);
             } else {
                 const string& source_name = (*source_layer)->layer_param().name();
+                LOG(INFO) << "Copying parameters for " << target_name << " (" << source_name << ")";
                 (*target_layer)->copyParams((*source_layer++)->blobs());
-                LOG(INFO) << "Copied parameters for " << target_name << " (" << source_name << ")";
             }
         }
     }

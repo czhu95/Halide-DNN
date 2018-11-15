@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     // disable verbose logging of caffe
     fLI::FLAGS_minloglevel = 2;
     caffe::Caffe::set_mode(Caffe::CPU);
-    caffe::Net<float> caffe_net("models/mobilenet_v2/test.prototxt", caffe::TEST);
+    caffe::Net<float> caffe_net("models/mobilenet_v2/mobilenet_v2_deploy.prototxt", caffe::TEST);
     caffe_net.CopyTrainedLayersFrom("models/mobilenet_v2/mobilenet_v2.caffemodel");
     fLI::FLAGS_minloglevel = 0;
 
@@ -78,5 +78,11 @@ int main(int argc, char* argv[]) {
                           << output_blob->data_at(n, c, h, w) << ", " << output_buffer(w, h, c, n);
 
     LOG(INFO) << "Passed.";
+
+    int N = 100;
+    LOG(INFO) << "Measure Caffe run time (" << N << ")";
+    for (int i = 0; i < N; i ++) {
+
+    }
     return 0;
 }

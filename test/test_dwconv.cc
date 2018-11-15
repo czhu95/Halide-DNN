@@ -25,7 +25,7 @@ using namespace hdnn;
 int main(int argc, char* argv[]) {
     // disable verbose logging of caffe
     fLI::FLAGS_minloglevel = 2;
-    caffe::Net<float> caffe_net("models/mobilenet_v2/MobileNet-v2-deploy.prototxt", caffe::TEST);
+    caffe::Net<float> caffe_net("models/mobilenet_v2/mobilenet_v2_deploy.prototxt", caffe::TEST);
     fLI::FLAGS_minloglevel = 0;
 
     int layer_id = 9;
