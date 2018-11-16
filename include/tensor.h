@@ -8,6 +8,7 @@ using std::pair;
 
 class Tensor {
 public:
+    Tensor() {};
     Tensor(const Func& func, const vector<int>& size) :
         func_(func), size_(size) {}
 
@@ -16,6 +17,7 @@ public:
 
     // TODO: Can we construct a tensor directly from a buffer?
 
+    Func& func() { return func_; }
     const Func& func() const { return func_; }
     const vector<pair<Expr, Expr>> bounds() const {
         vector<pair<Expr, Expr>> bounds;

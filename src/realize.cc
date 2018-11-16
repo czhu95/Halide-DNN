@@ -3,17 +3,22 @@
 namespace hdnn {
 
 template <typename Dtype>
-Realize<Dtype>::Realize(const string& name, const shared_ptr<Module<Dtype>>& module) :
-    Module<Dtype>(name), module_(module) {}
+Realize<Dtype>::Realize(const string& name) :
+    Module<Dtype>(name) {}
 
 template <typename Dtype>
 Tensor Realize<Dtype>::operator () (const Tensor& x) {
-    auto out = x;
-    if (module_)
-      out = (*module_)(x);
-    Func func = out.func();
-    Buffer<float> barrier = func.realize(vector<int>(out.size()));
-    return Tensor(Func(barrier), out.size());
+    t_ = x;
+    t_.func().compile_jit();
+    barrier_ = ImageParam(Halide::type_of<Dtype>(), t_.size().size());
+    return Tensor(barrier_, x.size());
+}
+
+template <typename Dtype>
+Buffer<Dtype> Realize<Dtype>::run(Buffer<Dtype>& input) {
+    Buffer<float> barrier = t_.func().realize(vector<int>(t_.size()));
+    barrier_.set(barrier);
+    return barrier;
 }
 
 template class Realize<float>;

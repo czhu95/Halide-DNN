@@ -12,7 +12,7 @@ Tensor operator+(const Tensor& o1, const Tensor& o2) {
     Func f;
     Var x, y, c, n;
     f(x, y, c, n) = o1.func_(x, y, c, n) + o2.func_(x, y, c, n);
-    f.compute_root();
+    // f.compute_root();
     return Tensor(f, o1.size_);
 }
 

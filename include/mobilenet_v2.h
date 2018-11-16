@@ -70,10 +70,8 @@ public:
 private:
     // virtual Func compile_jit(const Tensor& input) override;
     Tensor pool(const Tensor& x);
-    // vector<shared_ptr<Module<Dtype>>> stages_;
     Sequential<Dtype> features;
     Sequential<Dtype> classifier;
-    int num_stages_;
 };
 }
 

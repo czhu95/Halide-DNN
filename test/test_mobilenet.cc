@@ -4,6 +4,7 @@
 #include <glog/logging.h>
 #include <vector>
 #include <string>
+#include <chrono>
 
 #include "common.h"
 #include "util.h"
@@ -57,10 +58,10 @@ int main(int argc, char* argv[]) {
     Func output_func = halide_output.func();
     // output_func.trace_stores();
 
-    output_func.compile_jit();
+    // output_func.compile_jit();
     LOG(INFO) << "Compilation done.";
     const auto size = halide_output.size();
-    Buffer<float> output_buffer = output_func.realize(size);
+    Buffer<float> output_buffer = halide_net.run(input_buffer);
 
     string size_string;
     for (auto it = size.begin(); it != size.end(); it ++) {
@@ -80,9 +81,22 @@ int main(int argc, char* argv[]) {
     LOG(INFO) << "Passed.";
 
     int N = 100;
-    LOG(INFO) << "Measure Caffe run time (" << N << ")";
+    auto start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < N; i ++) {
-
+        caffe_net.Forward();
     }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    LOG(INFO) << "Caffe run time (" << N << " runs): " << elapsed << "ms.";
+
+    start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < N; i ++) {
+        halide_net.run(input_buffer);
+        // caffe_net.Forward();
+    }
+    end = std::chrono::high_resolution_clock::now();
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    LOG(INFO) << "Halide run time (" << N << " runs): " << elapsed << "ms.";
+
     return 0;
 }

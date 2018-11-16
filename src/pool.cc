@@ -58,7 +58,12 @@ Tensor AvgPool2d<Dtype>::operator () (const Tensor& x) {
     f(w, h, c, n) = Halide::sum(clamped_x(wi, hi, c, n)) /
         Halide::sum(Halide::select(wi < x.size(0) && hi < x.size(1), 1.f, 0.f));
 
+    Var fused;
     f.compute_root();
+    f.fuse(c, n, fused);
+    f.parallel(fused);
+    f.vectorize(w, 16);
+    clamped_x.store_root().compute_root();
     return Tensor(f, compute_output_size(x.size()));
 }
 

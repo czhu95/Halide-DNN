@@ -3,6 +3,7 @@
 #include "common.h"
 #include "tensor.h"
 #include "module.h"
+#include "realize.h"
 
 namespace hdnn {
 
@@ -53,10 +54,25 @@ public:
         }
     }
     virtual Tensor operator () (const Tensor& input) = 0;
+    virtual Buffer<Dtype> run(Buffer<Dtype>& input) {
+        Buffer<Dtype> out = input;
+        for (auto it = realizations_.begin(); it != realizations_.end(); it ++)
+            out = (*it)->run(out);
+        return out;
+    }
     virtual vector<shared_ptr<Module<Dtype>>> flatten() = 0;
     // virtual Func compile_jit(const Tensor& input) { return Halide::Func(); }
 
 protected:
+    void collect_realizations() {
+        realizations_.clear();
+        auto flat = flatten();
+        for (auto it = flat.begin(); it != flat.end(); it ++) {
+            if ((*it)->type() == "Realize")
+                realizations_.push_back(
+                        boost::dynamic_pointer_cast<Realize<Dtype>>((*it)));
+        }
+    }
     bool matchCaffeType(const string& hdnn_type, const string& caffe_type) {
         if (hdnn_type == "Conv2d")
             return caffe_type == "Convolution";
@@ -70,6 +86,8 @@ protected:
         else
             return caffe_type == hdnn_type;
     }
+    vector<shared_ptr<Realize<Dtype>>> realizations_;
+    ImageParam input_;
 };
 
 }

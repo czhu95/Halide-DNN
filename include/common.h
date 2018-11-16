@@ -14,6 +14,7 @@ using std::string;
 using boost::shared_ptr;
 
 using Halide::Buffer;
+using Halide::ImageParam;
 using Halide::RDom;
 using Halide::Var;
 using Halide::Func;

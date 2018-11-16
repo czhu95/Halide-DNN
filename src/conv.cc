@@ -78,7 +78,16 @@ Tensor Conv2d<Dtype>::operator () (const Tensor& x) {
     if (bias_term_)
         f(w, h, c, n) += bias_(c);
 
+    Var fused, wo, ho, wi, hi;
     f.compute_root();
+    f.fuse(c, n, fused);
+    f.parallel(fused);
+    // f.tile(w, h, wi, hi, wo, ho, 16, 16);
+    // f.vectorize(wi, 16);
+    f.vectorize(w, 16);
+    clamped_x.store_root().compute_root();
+    // clamped_x.compute_at(f, wi);
+    // clamped_x.store_root().compute_at(f, wi);
     return Tensor(f, compute_output_size(x.size()));
 }
 
