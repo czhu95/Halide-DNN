@@ -13,6 +13,7 @@ Tensor ReLU<Dtype>::operator () (const Tensor& x) {
     Func f;
 
     f(w, h, c, n) = Halide::max(Dtype(0.), x.func()(w, h, c, n));
+    // f.store_root().compute_root();
 
     return Tensor(f, compute_output_size(x.size()));
 }

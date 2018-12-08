@@ -4,6 +4,7 @@
 #include <glog/logging.h>
 #include <vector>
 #include <string>
+#include <chrono>
 
 #include "common.h"
 #include "util.h"
@@ -75,5 +76,24 @@ int main(int argc, char* argv[]) {
                     CHECK_LT(std::abs(output_blob->data_at(n, c, h, w) - halide_output(w, h, c, n)) , 1e-5) << n << " " << c << " " << h << " " << w;
 
     LOG(INFO) << "Passed.";
+
+    int N = 100;
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < N; i ++) {
+        caffe_net.ForwardFromTo(layer_id, layer_id);
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    LOG(INFO) << "Caffe run time (" << N << " runs): " << elapsed << "ms.";
+
+    start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < N; i ++) {
+        Buffer<float> halide_output = ppl.realize(x.size());
+    }
+    end = std::chrono::high_resolution_clock::now();
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    LOG(INFO) << "Halide run time (" << N << " runs): " << elapsed << "ms.";
+
+
     return 0;
 }

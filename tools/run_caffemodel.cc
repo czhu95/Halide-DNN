@@ -4,6 +4,7 @@
 #include <glog/logging.h>
 #include <vector>
 #include <string>
+#include <chrono>
 
 #include "common.h"
 #include "util.h"
@@ -63,9 +64,26 @@ int main(int argc, char* argv[]) {
 
     auto halide_output = halide_net(halide_input);
     Func output_func = halide_output.func();
-    output_func.trace_stores();
+    // output_func.trace_stores();
 
     Buffer<float> output_buffer = output_func.realize(halide_output.size());
+
+    int N = 1000;
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < N; i ++) {
+        caffe_net.Forward();
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    LOG(INFO) << "Caffe run time (" << N << " runs): " << elapsed << "ms.";
+
+    start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < N; i ++) {
+        output_func.realize(halide_output.size());
+    }
+    end = std::chrono::high_resolution_clock::now();
+    elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    LOG(INFO) << "Halide run time (" << N << " runs): " << elapsed << "ms.";
 
     delete[] input;
     return 0;

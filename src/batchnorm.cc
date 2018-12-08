@@ -65,10 +65,11 @@ Tensor BatchNorm2d<Dtype>::operator () (const Tensor& x) {
     Func f;
 
     f(w, h, c, n) = (x.func()(w, h, c, n) - mean_(c)) / std_(c);
-    if (affine_)
-        f(w, h, c, n) = f(w, h, c, n) * scale_(c) + shift_(c);
-
     f.store_root().compute_root();
+    if (affine_) {
+        f(w, h, c, n) = f(w, h, c, n) * scale_(c) + shift_(c);
+        f.store_root().compute_root();
+    }
     return Tensor(f, compute_output_size(x.size()));
 }
 
