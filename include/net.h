@@ -79,7 +79,7 @@ protected:
         else if (hdnn_type == "BatchNorm2d")
             return caffe_type == "BatchNorm";
         else if (hdnn_type == "Linear")
-            // Allow load 1x1 conv as linear module
+            // Allow loading 1x1 conv as linear module
             return caffe_type == "InnerProduct" || caffe_type == "Convolution";
         else if (hdnn_type == "Pooling")
             return caffe_type == "Pooling";
