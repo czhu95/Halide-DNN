@@ -13,6 +13,9 @@ using caffe::Blob;
 using std::vector;
 using boost::shared_ptr;
 
+// forward declaration
+template <typename Dtype> class Scheduler;
+
 template <typename Dtype>
 class Conv2d : public Module<Dtype> {
 public:
@@ -23,6 +26,9 @@ public:
     virtual void copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs);
     virtual bool hasParam() const { return true; }
     virtual Tensor operator () (const Tensor& v);
+    // expose algorithm details for scheduling
+    Var w, h, c, n;
+    Func pad, conv, shift;
 private:
     virtual vector<int> compute_output_size(const vector<int>& input_size) const;
     int in_channels_;
@@ -34,6 +40,7 @@ private:
     bool bias_term_;
     Buffer<Dtype> weight_;
     Buffer<Dtype> bias_;
+    shared_ptr<Scheduler<Dtype>> scheduler_;
 };
 
 

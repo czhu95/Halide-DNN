@@ -1,4 +1,5 @@
 #include "util.h"
+#include "scheduler.h"
 #include "vision_layers.h"
 
 namespace hdnn {
@@ -16,7 +17,8 @@ Conv2d<Dtype>::Conv2d(const string& name, int in_channels, int out_channels, int
     stride_(stride),
     pad_(padding),
     groups_(groups),
-    bias_term_(bias) {
+    bias_term_(bias),
+    scheduler_(new DefaultConv2dScheduler<Dtype>()){
 
     if (groups_ == 1) {
         vector<int> weight_size{kernel_size_, kernel_size_, in_channels_, out_channels_};
@@ -62,30 +64,36 @@ void Conv2d<Dtype>::copyParams(vector<shared_ptr<Blob<Dtype>>>& blobs) {
 template <typename Dtype>
 Tensor Conv2d<Dtype>::operator () (const Tensor& x) {
 
-    Var w, h, c, n;
-    Func clamped_x, f;
+    // Var w, h, c, n;
+    // Func clamped_x, conv, shift;
+    Func f;
 
-    clamped_x = Halide::BoundaryConditions::constant_exterior(x.func(), 0.f, x.bounds());
+    pad = Halide::BoundaryConditions::constant_exterior(x.func(), 0.f, x.bounds());
     if (groups_ == 1) {
         RDom r(0, kernel_size_, 0, kernel_size_, 0, in_channels_);
-        f(w, h, c, n) = Halide::sum(weight_(r.x, r.y, r.z, c) *
-                clamped_x(w * stride_ - pad_ + r.x, h * stride_ - pad_ + r.y, r.z, n));
+        conv(w, h, c, n) = Halide::sum(weight_(r.x, r.y, r.z, c) *
+                pad(w * stride_ - pad_ + r.x, h * stride_ - pad_ + r.y, r.z, n));
     } else {
         RDom r(0, kernel_size_, 0, kernel_size_);
-        f(w, h, c, n) = Halide::sum(weight_(r.x, r.y, 0, c) *
-                clamped_x(w * stride_ - pad_ + r.x, h * stride_ - pad_ + r.y, c, n));
+        conv(w, h, c, n) = Halide::sum(weight_(r.x, r.y, 0, c) *
+                pad(w * stride_ - pad_ + r.x, h * stride_ - pad_ + r.y, c, n));
     }
-    if (bias_term_)
-        f(w, h, c, n) += bias_(c);
+    if (bias_term_) {
+        shift(w, h, c, n) = conv(w, h, c, n) + bias_(c);
+        f = shift;
+    } else {
+        f = conv;
+    }
 
-    Var fused, wo, ho, wi, hi;
-    f.store_root().compute_root();
-    f.fuse(c, n, fused);
+    scheduler_->plan(this);
+    // Var fused, wo, ho, wi, hi;
+    // f.store_root().compute_root();
+    // f.fuse(c, n, fused);
     // f.parallel(fused);
     // f.tile(w, h, wo, ho, wi, hi, 16, 16);
     // f.vectorize(w, 8);
     // f.vectorize(w, 16);
-    clamped_x.store_root().compute_root();
+    // clamped_x.store_root().compute_root();
     // clamped_x.compute_at(f, wi);
     // clamped_x.store_root().compute_at(f, wi);
     return Tensor(f, compute_output_size(x.size()));
